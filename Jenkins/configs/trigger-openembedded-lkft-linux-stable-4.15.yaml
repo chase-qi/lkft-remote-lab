@@ -1,0 +1,49 @@
+- job:
+    name: trigger-openembedded-lkft-linux-stable-4.15
+    project-type: freestyle
+    defaults: global
+    properties:
+        - authorization:
+            anonymous:
+                - job-read
+                - job-extended-read
+        - build-discarder:
+            days-to-keep: 30
+            num-to-keep: 30
+    parameters:
+        - string:
+            name: KERNEL_BRANCH
+            default: 'linux-4.15.y'
+    disabled: false
+    node: master
+    display-name: 'Trigger for LKFT - Linux Stable 4.15.y'
+    scm:
+        - git:
+            url: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
+            refspec: +refs/heads/${KERNEL_BRANCH}:refs/remotes/origin/${KERNEL_BRANCH}
+            name: origin
+            branches:
+                - origin/${KERNEL_BRANCH}
+            skip-tag: true
+            shallow-clone: false
+            wipe-workspace: false
+    triggers:
+        - pollscm:
+            cron: 'H/5 * * * *'
+    wrappers:
+        - timestamps
+        - build-name:
+            name: '#${BUILD_NUMBER}-${GIT_REVISION,length=8}'
+    builders:
+        - shell: |
+            #!/bin/bash -e
+            echo KERNEL_DESCRIBE=$(git describe --always) > lkft_parameters
+            echo SRCREV_kernel=${GIT_COMMIT} >> lkft_parameters
+            echo MAKE_KERNELVERSION=$(make kernelversion) >> lkft_parameters
+            cat lkft_parameters
+    publishers:
+        - trigger-parameterized-builds:
+            - project:
+                - 'openembedded-lkft-linux-stable-4.15'
+              condition: SUCCESS
+              property-file: lkft_parameters

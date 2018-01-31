@@ -1,0 +1,148 @@
+- job:
+    name: openembedded-lkft-linux-stable-4.15
+    project-type: matrix
+    defaults: global
+    properties:
+        - authorization:
+            anonymous:
+                - job-read
+                - job-extended-read
+                - job-workspace
+            linaro:
+                - job-read
+                - job-extended-read
+                - job-build
+                - job-cancel
+        - build-discarder:
+            days-to-keep: 30
+            num-to-keep: 30
+            artifact-num-to-keep: 1
+    parameters:
+        - string:
+            name: KERNEL_BRANCH
+            default: 'linux-4.15.y'
+        - string:
+            name: KERNEL_VERSION
+            default: '4.15'
+        - string:
+            name: KERNEL_RECIPE
+            default: 'linux-generic-stable'
+        - string:
+            name: KERNEL_REPO
+            default: 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git'
+        - string:
+            name: KERNEL_DESCRIBE
+        - string:
+            name: SRCREV_kernel
+        - string:
+            name: MAKE_KERNELVERSION
+        - string:
+            name: IMAGES
+            default: 'rpb-console-image'
+        - string:
+            name: MANIFEST_BRANCH
+            default: 'morty'
+        - string:
+            name: PUB_DEST
+            default: 'openembedded/lkft/${MANIFEST_BRANCH}/${MACHINE}/${DISTRO}/linux-stable-${KERNEL_VERSION}/${BUILD_NUMBER}'
+        - string:
+            name: LAVA_SERVER
+            default: 'https://chase.lkft.org/RPC2/'
+        - string:
+            name: QA_SERVER
+            default: 'https://qa-reports.linaro.org'
+        - string:
+            name: QA_SERVER_PROJECT
+            default: 'remote-lab-demo'
+        - string:
+            name: SKIP_LAVA
+            default: ''
+        - string:
+            name: LAVA_JOB_PRIORITY
+            default: 'medium'
+    disabled: false
+    node: master
+    display-name: 'LKFT - Linux Stable 4.15.y (OpenEmbedded/morty)'
+    axes:
+        - axis:
+            type: user-defined
+            name: MACHINE
+            values:
+                #- 'am57xx-evm'
+                #- 'dragonboard-410c'
+                - 'hikey'
+                #- 'intel-core2-32'
+                #- 'juno'
+                #- 'stih410-b2260'
+        - axis:
+            type: user-defined
+            name: DISTRO
+            values:
+                - rpb
+        - axis:
+            type: slave
+            name: label
+            values:
+                - docker-stretch-amd64
+    execution-strategy:
+        sequential: false
+    wrappers:
+        - timeout:
+            timeout: 180
+        - timestamps
+        - ssh-agent-credentials:
+            users:
+                - 'OE_COMMIT_BOT_KEY'
+        - credentials-binding:
+            - text:
+                credential-id: QA_REPORTS_TOKEN
+                variable: QA_REPORTS_TOKEN
+    builders:
+        - shell: |
+            #!/bin/bash
+
+            # Mapping for MACHINE -> DEVICE_TYPE
+            case "${MACHINE}" in
+              hikey)
+                DEVICE_TYPE=hi6220-hikey
+                ;;
+              intel-core2-32)
+                DEVICE_TYPE=x86
+                ;;
+              juno)
+                DEVICE_TYPE=juno-r2
+                ;;
+              am57xx-evm)
+                DEVICE_TYPE=x15
+                ;;
+            esac
+
+            echo "DEVICE_TYPE=${DEVICE_TYPE}" > device_type_parameters
+            echo "#${BUILD_NUMBER}-${SRCREV_kernel:0:8}" > ${WORKSPACE}/version.txt
+        - build-name-setter:
+            name: 'version.txt'
+            file: true
+        - inject:
+            properties-file: device_type_parameters
+        - shell:
+            !include-raw: openembedded-lkft/builders.sh
+        - inject:
+            properties-file: post_build_lava_parameters
+        - shell: |
+            #/bin/bash
+            # Prepare for image publish over ssh.
+            mkdir ${BUILD_NUMBER}
+            cp /srv/oe/build/tmp-rpb-glibc/deploy/images/${MACHINE}/boot*.img ${BUILD_NUMBER}
+            cp /srv/oe/build/tmp-rpb-glibc/deploy/images/${MACHINE}/rpb-console-image*.rootfs.img.gz ${BUILD_NUMBER}
+            cp /srv/oe/build/tmp-rpb-glibc/deploy/images/${MACHINE}/config ${BUILD_NUMBER}
+            cp /srv/oe/build/tmp-rpb-glibc/deploy/images/${MACHINE}/build_config.json ${BUILD_NUMBER}
+            cp /srv/oe/build/tmp-rpb-glibc/deploy/images/${MACHINE}/pinned-manifest.xml ${BUILD_NUMBER}
+            cp /srv/oe/build/tmp-rpb-glibc/deploy/images/${MACHINE}/MD5SUMS.txt ${BUILD_NUMBER}
+            ls -l ${BUILD_NUMBER}
+        - publish-over-ssh:
+            site: 'people.linaro.org'
+            target: 'lkft-remote-lab/openembedded/lkft/${MANIFEST_BRANCH}/${MACHINE}/${DISTRO}/linux-stable-${KERNEL_VERSION}/'
+            source: '${BUILD_NUMBER}/*'
+            timeout: 3600
+        - shell:
+            !include-raw: openembedded-lkft/submit_for_testing.sh

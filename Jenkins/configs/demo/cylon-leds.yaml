@@ -1,0 +1,18 @@
+metadata:
+    format: Lava-Test Test Definition 1.0
+    name: cylon-led
+    description: "Trun on cylon led lights."
+    maintainer:
+        - chase.qi@linaro.org
+    os:
+        - debian
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - hi6220-hikey
+
+run:
+    steps:
+        - cd ./Jenkins/configs/demo
+        - lava-test-case active-cylon-led --shell timeout 300 ./cylon-leds.sh
