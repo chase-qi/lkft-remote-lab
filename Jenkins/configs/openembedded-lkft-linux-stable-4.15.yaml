@@ -132,6 +132,7 @@
             #/bin/bash
             # Prepare for image publish over ssh.
             mkdir ${BUILD_NUMBER}
+            cp post_build_lava_parameters ${BUILD_NUMBER}
             cp /srv/oe/build/tmp-rpb-glibc/deploy/images/${MACHINE}/boot*.img ${BUILD_NUMBER}
             cp /srv/oe/build/tmp-rpb-glibc/deploy/images/${MACHINE}/rpb-console-image*.rootfs.img.gz ${BUILD_NUMBER}
             cp /srv/oe/build/tmp-rpb-glibc/deploy/images/${MACHINE}/config ${BUILD_NUMBER}

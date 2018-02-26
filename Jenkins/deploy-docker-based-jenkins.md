@@ -116,7 +116,7 @@ Refer to [Publish Over SSH Plugin](https://wiki.jenkins.io/display/JENKINS/Publi
    jenkins-jobs --conf jenkins_jobs.ini update openembedded-lkft-linux-mainline.yaml
    jenkins-jobs --conf jenkins_jobs.ini update trigger-openembedded-lkft-linux-mainline.yaml
    ```
-4. Generate a token for job submission in `squad`. Go to `Jenkins -> Credentials -> System -> Global credentials (unrestricted)`, click `Add Credentials` to add a new secret text type credential with `QA_REPORTS_TOKEN` as description.
+4. Generate a token for job submission in `squad`. Go to `Jenkins -> Credentials -> System -> Global credentials (unrestricted)`, click `Add Credentials` to add a new secret text type credential using string `QA_REPORTS_TOKEN` as `ID` and `Description`.
 
 ## Reference
 [Jenkins job configs on `ci.linaro.org`](https://git.linaro.org/ci/job/configs.git)

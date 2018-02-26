@@ -1,0 +1,135 @@
+context:
+  test_character_delay: 10
+
+timeouts:
+  job:
+    minutes: 60
+  action:
+    minutes: 10
+  connection:
+    minutes: 2
+
+device_type: hi6220-hikey
+job_name: lkft-remote-lab-cylon-leds-linux-4.15.y-1
+priority: medium
+visibility: public
+
+metadata:
+  git branch: linux-4.15.y
+  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
+  git commit: a6c3a2a210729c9c2a07fdfc366c353b5e3dd305
+  git describe: v4.15.5
+  make_kernelversion: 4.15.5
+  kernel-config: http://people.linaro.org/~chase.qi/lkft-remote-lab/openembedded/lkft/morty/hikey/rpb/linux-stable-4.15/1/config
+  kernel-defconfig: http://people.linaro.org/~chase.qi/lkft-remote-lab/openembedded/lkft/morty/hikey/rpb/linux-stable-4.15/1/defconfig
+  build-url: http://192.168.11.205:8080/job/openembedded-lkft-linux-stable-4.15/DISTRO=rpb,MACHINE=hikey,label=docker-stretch-amd64/1/
+  build-location: http://people.linaro.org/~chase.qi/lkft-remote-lab/openembedded/lkft/morty/hikey/rpb/linux-stable-4.15/1
+  series: lkft
+
+protocols:
+  lava-lxc:
+    name: lxc-target
+    template: debian
+    distribution: debian
+    release: jessie
+    arch: amd64
+
+actions:
+- deploy:
+    namespace: tlxc
+    timeout:
+      minutes: 15
+    to: lxc
+    packages:
+    - wget
+    - unzip
+    os: debian
+
+- boot:
+    namespace: tlxc
+    prompts:
+    - root@(.*):/#
+    timeout:
+      minutes: 5
+    method: lxc
+
+- test:
+    namespace: tlxc
+    timeout:
+      minutes: 10
+    definitions:
+    - from: inline
+      name: install-google-fastboot
+      path: inline/install-google-fastboot.yaml
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: install-fastboot
+          description: Install fastboot provided by google
+        run:
+          steps:
+          - wget http://dl.google.com/android/repository/platform-tools_r26.0.0-linux.zip
+          - unzip -q platform-tools_r26.0.0-linux.zip
+          - ln -s `pwd`/platform-tools/fastboot /usr/bin/fastboot
+          - ln -s `pwd`/platform-tools/adb /usr/bin/adb
+          - fastboot --version
+
+- deploy:
+    timeout:
+      minutes: 30
+    to: fastboot
+    namespace: target
+    connection: lxc
+    images:
+      ptable:
+        url: http://releases.linaro.org/reference-platform/embedded/hikey/16.12/rpb/bootloader/ptable-linux-8g.img
+        reboot: hard-reset
+      boot:
+        url: http://people.linaro.org/~chase.qi/lkft-remote-lab/openembedded/lkft/morty/hikey/rpb/linux-stable-4.15/1/boot-0.0+AUTOINC+06e4def583-fb1158a365-r0-hikey-20180222102848-1.uefi.img
+        reboot: hard-reset
+      system:
+        url: http://people.linaro.org/~chase.qi/lkft-remote-lab/openembedded/lkft/morty/hikey/rpb/linux-stable-4.15/1/rpb-console-image-hikey-20180223102403-1.rootfs.img.gz
+        compression: gz
+        apply-overlay: true
+    os: oe
+    protocols:
+      lava-lxc:
+      - action: fastboot-deploy
+        request: pre-power-command
+        timeout:
+          minutes: 2
+
+- boot:
+    namespace: target
+    auto_login:
+      login_prompt: 'login:'
+      username: linaro
+      login_commands:
+        # Become super user to run tests
+      - su
+    prompts:
+    - hikey:~
+    - root@(.*):/#
+    timeout:
+      minutes: 5
+    method: uefi-menu
+    commands: fastboot
+    protocols:
+      lava-lxc:
+      # other action could be boot-fastboot
+      - action: uefi-commands
+        request: pre-os-command
+        timeout:
+          minutes: 2
+
+- test:
+    namespace: target
+    timeout:
+      minutes: 15
+    definitions:
+    - repository: https://github.com/chase-qi/lkft-remote-lab
+      from: git
+      path: Jenkins/configs/cylon-leds-demo/test-case/cylon-leds.yaml
+      name: active-cylon-leds
+      timeout:
+        minutes: 10

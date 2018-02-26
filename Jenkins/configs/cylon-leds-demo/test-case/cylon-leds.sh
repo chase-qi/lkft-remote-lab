@@ -1,48 +1,50 @@
-#!/bin/sh
+#!/bin/sh -ex
+# Based on https://github.com/RobertCNelson/boot-scripts/blob/master/tools/eMMC/functions.sh#L695
 
 BASE=/sys/class/leds/user_led
-echo none > ${BASE}1/trigger
-echo none > ${BASE}2/trigger
-echo none > ${BASE}3/trigger
-echo none > ${BASE}4/trigger
+for i in $(seq 4); do
+    echo none > "${BASE}$i/trigger"
+done
 
-STATE=1
-while true; do
-    case $STATE in
+TIMEOUT="$1"
+end=$(( $(date +%s) + TIMEOUT ))
+state=1
+while [ "$(date +%s)" -lt "$end" ]; do
+    case $state in
         1)
             echo 255 > ${BASE}1/brightness
             echo 0 > ${BASE}2/brightness
-            STATE=2
+            state=2
             ;;
         2)
             echo 255 > ${BASE}2/brightness
             echo 0 > ${BASE}1/brightness
-            STATE=3
+            state=3
             ;;
         3)
             echo 255 > ${BASE}3/brightness
             echo 0 > ${BASE}2/brightness
-            STATE=4
+            state=4
             ;;
         4)
             echo 255 > ${BASE}4/brightness
             echo 0 > ${BASE}3/brightness
-            STATE=5
+            state=5
             ;;
         5)
             echo 255 > ${BASE}3/brightness
             echo 0 > ${BASE}4/brightness
-            STATE=6
+            state=6
             ;;
         6)
             echo 255 > ${BASE}2/brightness
             echo 0 > ${BASE}3/brightness
-            STATE=1
+            state=1
             ;;
         *)
             echo 255 > ${BASE}1/brightness
             echo 0   > ${BASE}2/brightness
-            STATE=2
+            state=2
             ;;
     esac
     sleep 0.1

@@ -12,7 +12,11 @@ metadata:
     devices:
         - hi6220-hikey
 
+parameters:
+    # cylon leds special effects in seconds
+    TIMEOUT: 60
+
 run:
     steps:
-        - cd ./Jenkins/configs/demo
-        - lava-test-case active-cylon-led --shell timeout 300 ./cylon-leds.sh
+        - cd ./Jenkins/configs/cylon-leds-demo/test-case/
+        - lava-test-case active-cylon-led --shell ./cylon-leds.sh ${TIMEOUT}
