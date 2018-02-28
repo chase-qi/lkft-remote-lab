@@ -130,8 +130,13 @@
             properties-file: post_build_lava_parameters
         - shell: |
             #/bin/bash
+
+            set -ex
+
             # Prepare for image publish over ssh.
             mkdir ${BUILD_NUMBER}
+            cp device_type_parameters ${BUILD_NUMBER}
+            cp post_build_lava_parameters ${BUILD_NUMBER}
             cp /srv/oe/build/tmp-rpb-glibc/deploy/images/${MACHINE}/boot*.img ${BUILD_NUMBER}
             cp /srv/oe/build/tmp-rpb-glibc/deploy/images/${MACHINE}/rpb-console-image*.rootfs.img.gz ${BUILD_NUMBER}
             cp /srv/oe/build/tmp-rpb-glibc/deploy/images/${MACHINE}/config ${BUILD_NUMBER}
@@ -140,8 +145,8 @@
             cp /srv/oe/build/tmp-rpb-glibc/deploy/images/${MACHINE}/MD5SUMS.txt ${BUILD_NUMBER}
             ls -l ${BUILD_NUMBER}
         - publish-over-ssh:
-            site: 'people.linaro.org'
-            target: 'lkft-remote-lab/openembedded/lkft/${MANIFEST_BRANCH}/${MACHINE}/${DISTRO}/linux-mainline/'
+            site: 'ThinkServer'
+            target: 'snapshots/openembedded/lkft/${MANIFEST_BRANCH}/${MACHINE}/${DISTRO}/linux-mainline/'
             source: '${BUILD_NUMBER}/*'
             timeout: 3600
         - shell:

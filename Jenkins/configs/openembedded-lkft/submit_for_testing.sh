@@ -42,7 +42,9 @@ if [ -z "${DRY_RUN}" ]; then
 fi
 
 if [ ! -z "${KERNEL_DESCRIBE}" ]; then
-    export QA_BUILD_VERSION=${KERNEL_DESCRIBE}
+    #export QA_BUILD_VERSION=${KERNEL_DESCRIBE}
+    # For demostration, append build number to split test jobs by build.
+    export QA_BUILD_VERSION="${KERNEL_DESCRIBE}-${BUILD_NUMBER}"
 else
     export QA_BUILD_VERSION=${KERNEL_COMMIT:0:12}
 fi

@@ -285,7 +285,8 @@ case "${MACHINE}" in
     ;;
 esac
 
-BASE_URL=http://people.linaro.org/~chase.qi/lkft-remote-lab
+# Local http file downloading server.
+BASE_URL=http://192.168.11.205/snapshots
 cat > ${DEPLOY_DIR_IMAGE}/build_config.json <<EOF
 {
   "kernel_repo" : "${KERNEL_REPO}",

@@ -21,8 +21,16 @@ In this guide, the following key:values will be used for lava-master, you will n
 * Domain: chase.lkft.org
 
 1. Install lava-server
+
+   At the time of writing this guide, the latest LAVA release is 2018.02. It requires `python3-django-auth-ldap (>= 1.1.8)` from Debian stretch-backports but doesn't comply with `python-django 1.11` from the same repo. Refer to https://projects.linaro.org/browse/CTT-990 for more details. You may need to login to access the page. To work around this issue, we need to install python-django from main repo first.
+
+   Install postgresql and python-django v1.10 from main repo:
    ```
-   apt install -y postgresql
+   apt install -y postgresql python-django
+   ```
+
+   Install lava-server and its dependencies from stretch-backports:
+   ```
    apt install -y -t stretch-backports lava-server
    a2dissite 000-default
    a2enmod proxy
@@ -93,7 +101,30 @@ In this guide, the following key:values will be used for lava-master, you will n
        ```
      * Reboot lava-master to put these changes into effect.
 
-4. Connect to remote lava-slave
+4. Configure event notifications
+   When event notifications enabled in `lava-server`, `squad` will know when a test job finished, then it will start to fetch test results from that job.
+
+   To enabled event notifications, open `/etc/lava-server/settings.conf` and add the following lines:
+   ```
+   "EVENT_TOPIC": "org.lkft.chase",
+   "INTERNAL_EVENT_SOCKET": "ipc:///tmp/lava.events",
+   "EVENT_SOCKET": "tcp://*:5500",
+   "EVENT_NOTIFICATION": true,
+   "EVENT_ADDITIONAL_SOCKETS": []
+   ```
+   Notes:
+   * Ensure that the EVENT_TOPIC is changed to a string which the receivers of the events can use for filtering. Simply reversing the domain name for your LAVA instance should work.
+   * Ensure that the EVENT_SOCKET is visible to the receivers. You may need to add a firewall rule to allow external access to the port.
+
+   Restart the corresponding services:
+   ```
+   systemctl restart lava-publisher
+   systemctl restart lava-master
+   systemctl restart lava-logs
+   systemctl restart lava-server-gunicorn
+   ```
+
+5. Connect to remote lava-slave
    * Enable ZMQ authentication and encryption
      ```
      cd /etc/lava-dispatcher/certificates.d
@@ -121,7 +152,7 @@ In this guide, the following key:values will be used for lava-master, you will n
      systemctl restart lava-master
      systemctl restart lava-logs
      ```
-5. Optionally, add local lava-slave
+6. Optionally, add local lava-slave
    * Generate certificates
      ```
      cd /etc/lava-dispatcher/certificates.d
