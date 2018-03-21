@@ -204,6 +204,7 @@ In this guide, the following key:values will be used for lava-master, you will n
      ```
      MASTER_URL="tcp://104.199.171.203:5556"
      LOGGER_URL="tcp://104.199.171.203:5555"
+     HOSTNAME="--hostname t440"
      ENCRYPT="--encrypt"
      SLAVE_CERT="--slave-cert /etc/lava-dispatcher/certificates.d/slave-t440.key_secret"
      ```

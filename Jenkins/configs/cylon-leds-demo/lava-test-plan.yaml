@@ -85,10 +85,12 @@ actions:
         url: http://releases.linaro.org/reference-platform/embedded/hikey/16.12/rpb/bootloader/ptable-linux-8g.img
         reboot: hard-reset
       boot:
-        url: http://people.linaro.org/~chase.qi/lkft-remote-lab/openembedded/lkft/morty/hikey/rpb/linux-stable-4.15/1/boot-0.0+AUTOINC+06e4def583-fb1158a365-r0-hikey-20180222102848-1.uefi.img
-        reboot: hard-reset
+        #url: http://people.linaro.org/~chase.qi/lkft-remote-lab/openembedded/lkft/morty/hikey/rpb/linux-stable-4.15/1/boot-0.0+AUTOINC+06e4def583-fb1158a365-r0-hikey-20180222102848-1.uefi.img
+        url: http://localhost/tmp/demo/boot-0.0+AUTOINC+06e4def583-fb1158a365-r0-hikey-20180222102848-1.uefi.img
+        reboozt: hard-reset
       system:
-        url: http://people.linaro.org/~chase.qi/lkft-remote-lab/openembedded/lkft/morty/hikey/rpb/linux-stable-4.15/1/rpb-console-image-hikey-20180223102403-1.rootfs.img.gz
+        #url: http://people.linaro.org/~chase.qi/lkft-remote-lab/openembedded/lkft/morty/hikey/rpb/linux-stable-4.15/1/rpb-console-image-hikey-20180223102403-1.rootfs.img.gz
+        url: http://localhost/tmp/demo/rpb-console-image-hikey-20180223102403-1.rootfs.img.gz
         compression: gz
         apply-overlay: true
     os: oe

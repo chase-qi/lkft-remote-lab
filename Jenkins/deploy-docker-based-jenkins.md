@@ -72,6 +72,7 @@ In LKFT test framework, Jenkins monitors changes from specified kernel tree, bui
 4. Generate the SSH key pairs for slave lunch method using SSH.
    ```
    mkdir -p /srv/docker/ssh/
+   cd /srv/docker/ssh/
    ssh-keygen -t rsa -f id_rsa_buildslave -N ''
    ```
 5. Go to `Jenkins -> Credentials -> System -> Global credentials (unrestricted)`, click `Add Credentials` to add the above SSH private key with username `buildslave`.
