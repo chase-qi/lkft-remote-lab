@@ -1,0 +1,62 @@
+- job:
+    name: 'lkft-remote-lab-demo-sharkl2'
+    display-name: 'lkft-remote-lab-demo-sharkl2'
+    project-type: freestyle
+    defaults: global
+    properties:
+        - authorization:
+            anonymous:
+                - job-read
+                - job-extended-read
+                - job-workspace
+            linaro:
+                - job-read
+                - job-extended-read
+                - job-build
+                - job-cancel
+        - build-discarder:
+            days-to-keep: 30
+            num-to-keep: 30
+    disabled: false
+    node: master
+    parameters:
+        - string:
+            name: LAVA_SERVER
+            default: 'https://chase.lkft.org/RPC2/'
+        - string:
+            name: QA_SERVER
+            default: 'https://qa-reports.linaro.org'
+        - string:
+            name: QA_SERVER_PROJECT
+            default: 'remote-lab-demo'
+        - string:
+            name: DEVICE_TYPE
+            default: 'sharkl2'
+    wrappers:
+        - timestamps
+        - credentials-binding:
+            - text:
+                credential-id: QA_REPORTS_TOKEN
+                variable: QA_REPORTS_TOKEN
+    builders:
+        - shell: |
+            #!/bin/bash
+
+            set -ex
+            
+            rm -rf lkft-remote-lab
+            git clone https://github.com/chase-qi/lkft-remote-lab
+            cd lkft-remote-lab/demos/sharkl2
+
+            virtualenv --python=/usr/bin/python2 env
+            . env/bin/activate
+            pip install ruamel.yaml requests
+            
+            python ../submit_for_testing.py \
+                --device-type ${DEVICE_TYPE} \
+                --build-number sharkl2-cts-run${BUILD_NUMBER} \
+                --lava-server ${LAVA_SERVER} \
+                --qa-server ${QA_SERVER} \
+                --qa-server-team staging-lkft \
+                --qa-server-project ${QA_SERVER_PROJECT} \
+                --test-plan lava-test-plan.yaml

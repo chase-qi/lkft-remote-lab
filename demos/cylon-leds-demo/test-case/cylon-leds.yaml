@@ -1,0 +1,22 @@
+metadata:
+    format: Lava-Test Test Definition 1.0
+    name: cylon-led
+    description: "Trun on cylon led lights."
+    maintainer:
+        - chase.qi@linaro.org
+    os:
+        - debian
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - hi6220-hikey
+
+parameters:
+    # cylon leds special effects in seconds
+    TIMEOUT: 60
+
+run:
+    steps:
+        - cd ./demos/cylon-leds-demo/test-case/
+        - lava-test-case active-cylon-led --shell ./cylon-leds.sh ${TIMEOUT}

@@ -1,0 +1,107 @@
+device_type: sharkl
+job_name: "android-sharkl2-demo"
+timeouts:
+  job:
+    minutes: 300
+  action:
+    minutes: 15
+  connection:
+    minutes: 2
+priority: high
+visibility: personal
+
+metadata:
+  android.name: "android-spreadtrum"
+  git branch: linux-4.4.y
+  git commit: b6c3a2a210729c9c2a07fdfc366c353b5e3dd305
+  git describe: v4.4.49
+  make_kernelversion: 4.4.49
+  series: lkft
+
+protocols:
+  lava-lxc:
+    name: lxc-sharkl2-test
+    template: ubuntu
+    distribution: ubuntu
+    release: xenial
+    arch: amd64
+
+actions:
+- deploy:
+    namespace: tlxc
+    timeout:
+      minutes: 5
+    to: lxc
+    packages:
+    - wget
+    - zip
+    - unzip
+    - usbutils
+    os: ubuntu
+
+- boot:
+    namespace: tlxc
+    prompts:
+    - 'root@(.*):/#'
+    timeout:
+      minutes: 5
+    method: lxc
+
+- test:
+    namespace: tlxc
+    timeout:
+      minutes: 10
+    definitions:
+    - from: inline
+      name: install-google-fastboot
+      path: inline/install-google-fastboot.yaml
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: install-fastboot
+          description: "Install fastboot provided by google"
+        run:
+          steps:
+          - wget https://dl.google.com/android/repository/platform-tools_r26.0.0-linux.zip
+          - unzip -q platform-tools_r26.0.0-linux.zip
+          - ln -s `pwd`/platform-tools/fastboot /usr/bin/fastboot
+          - ln -s `pwd`/platform-tools/adb /usr/bin/adb
+          - fastboot --version
+
+- deploy:
+    timeout:
+      minutes: 30
+    to: fastboot
+    namespace: droid
+    images:
+      boot:
+        url: "file:///root/images/spreadtrum/boot.img"
+      userdata:
+        url: "file:///root/images/spreadtrum/userdata.img"
+      #system:
+        #url: "file:///root/images/spreadtrum/system.img"
+
+- boot:
+    namespace: droid
+    timeout:
+      minutes: 15
+    method: fastboot
+
+- test:
+      namespace: tlxc
+      timeout:
+        minutes: 30
+      definitions:
+        - repository: https://git.linaro.org/people/chase.qi/test-definitions.git
+          from: git
+          path: automated/android/busybox/busybox.yaml
+          name: busybox-test
+        - repository: https://git.linaro.org/qa/test-definitions.git
+          from: git
+          path: automated/android/tradefed/tradefed.yaml
+          params:
+                TEST_URL: "https://dl.google.com/dl/android/cts/android-cts-7.0_r19-linux_x86-arm.zip"
+                TEST_PARAMS: "run cts --include-filter CtsVmTestCases --disable-reboot --skip-preconditions --skip-device-info"
+                TEST_PATH: "android-cts"
+                RESULTS_FORMAT: "atomic"
+          name: CtsVmTestCases
