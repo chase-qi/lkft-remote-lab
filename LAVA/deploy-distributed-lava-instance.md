@@ -22,15 +22,8 @@ In this guide, the following key:values will be used for lava-master, you will n
 
 1. Install lava-server
 
-   At the time of writing this guide, the latest LAVA release is 2018.02. It requires `python3-django-auth-ldap (>= 1.1.8)` from Debian stretch-backports but doesn't comply with `python-django 1.11` from the same repo. Refer to https://projects.linaro.org/browse/CTT-990 for more details. You may need to login to access the page. To work around this issue, we need to install python-django from main repo first.
-
-   Install postgresql and python-django v1.10 from main repo:
    ```
-   apt install -y postgresql python-django
-   ```
-
-   Install lava-server and its dependencies from stretch-backports:
-   ```
+   apt install -y postgresql
    apt install -y -t stretch-backports lava-server
    a2dissite 000-default
    a2enmod proxy
