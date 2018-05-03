@@ -228,7 +228,7 @@ In this guide, the following key:values will be used for lava-master, you will n
      Open https://chase.lkft.org/admin/lava_scheduler_app/device/qemu-01/change/, click into `Advanced properties`, `Device dictionary jinja` should be updated with the above lines.
    * Add health check job for the new added device.
      ```
-     cp ./health-checks/qemu-01.yaml /etc/lava-server/dispatcher-config/health-checks/
+     cp ./health-checks/qemu.yaml /etc/lava-server/dispatcher-config/health-checks/
      ```
      The health test job will tell you if the instance deployed correctly.
 
