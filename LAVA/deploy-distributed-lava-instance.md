@@ -56,6 +56,7 @@ In this guide, the following key:values will be used for lava-master, you will n
      * Set up lava-server site as default site
        ```
        a2dissite lava-server.conf
+       cd /etc/apache2/sites-available
        mv 000-default.conf 000-default.conf.bak
        mv default-ssl.conf default-ssl.conf.bak
        cp lava-server.conf 000-default.conf
@@ -92,7 +93,12 @@ In this guide, the following key:values will be used for lava-master, you will n
        "CSRF_COOKIE_SECURE": false,
        "SESSION_COOKIE_SECURE": false
        ```
-     * Reboot lava-master to put these changes into effect.
+     * Reboot related services to put these changes into effect.
+       ```
+       systemctl restart apache2
+       systemctl restart lava-master
+       systemctl restart lava-server-gunicorn
+       ```
 
 4. Configure event notifications
    When event notifications enabled in `lava-server`, `squad` will know when a test job finished, then it will start to fetch test results from that job.
@@ -205,6 +211,14 @@ In this guide, the following key:values will be used for lava-master, you will n
      ```
      systemctl restart lava-slave
      ```
+4. Install prerequisites on lava-slave.
+   ```
+   apt install simg2img
+   ```
+5. Do not run adb daemon on the dispatcher host, which will grab the DUT and will hinder exposing it to LXC. If installed, remove adb and fastboot packages from the dispatcher host.
+   ```
+   apt remove android-tools-adb android-tools-fastboot
+   ```
 
 ## Add known supported device: qemu
 1. Add qemu device in the database.
@@ -269,9 +283,9 @@ cp ./health-checks/lxc.yaml /etc/lava-server/dispatcher-config/health-checks/
    * Connect hikey serial port to lava-slave.
    * Edit `/etc/ser2net.conf` to add:
      ```
-     7001:telnet:0:/dev/ttyUSB0:115200 8DATABITS NONE 1STOPBIT
+     7001:telnet:0:/dev/serial/by-id/usb-FTDI_FT230X_96Boards_Console_DAZ0KE1D-if00-port0:115200 8DATABITS NONE 1STOPBIT
      ```
-   Adjust serial port `ttyUSB0` when needed.
+   Adjust serial device ID when needed.
    * Restart ser2net
      ```
      systemctl restart ser2net
@@ -280,20 +294,17 @@ cp ./health-checks/lxc.yaml /etc/lava-server/dispatcher-config/health-checks/
    Refer to [LAVA woker](https://i.imgur.com/xTwC7LZ.jpg) and [power-control](./power-control.md) to:
    * Connect OTG port via RPi_Relay_Board to lava-slave.
    * Connect power cable via RPi_Relay_Board to lava-slave.
-   * Update power/otg control commands defined in `./devices/hi6220-hikey-01.jinja2`
-4. Add hi6220-hikey device type and hi6220-hikey-01 device in django admin console.
+   * Update power/otg control commands defined in `./devices/hikey-6220-r2-01.jinja2`
+4. Add hi6220-hikey-r2 device type and hikey-6220-01 device in django admin console.
 5. Add device dictionary.
    ```
-   cp ./devices/hi6220-hikey-01.jinja2 /etc/lava-server/dispatcher-config/devices/
+   cp ./devices/hikey-6220-01.jinja2 /etc/lava-server/dispatcher-config/devices/
    ```
 6. Add health check job.
    ```
-   cp ./health-checks/hi6220-hikey.yaml /etc/lava-server/dispatcher-config/health-checks/
+   cp ./health-checks/hi6220-hikey-r2.yaml /etc/lava-server/dispatcher-config/health-checks/
    ```
-7. Install prerequisites on lava-slave T440.
-   ```
-   apt install -y simg2img img2simg
-   ```
+7. Make sure your hikey runs latest version firmware. At the time of writing this guide, build [#70](https://snapshots.linaro.org/96boards/reference-platform/components/uefi-staging/70/hikey/release/) is used.
 
 ## References
 [First steps installing LAVA](https://validation.linaro.org/static/docs/v2/first-installation.html)

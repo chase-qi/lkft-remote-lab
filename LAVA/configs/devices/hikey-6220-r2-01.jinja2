@@ -1,0 +1,17 @@
+{% extends 'hi6220-hikey-r2.jinja2' %}
+{% set fastboot_serial_number = '6F09C8960036550D' %}
+{% set adb_serial_number = '6F09C8960036550D' %}
+{% set connection_list = ['uart1'] %}
+{% set connection_commands = {'uart1': 'telnet localhost 7001'} %}
+{% set connection_tags = {'uart1': ['primary', 'telnet']} %}
+{% set pre_power_command = 'ssh pi@192.168.11.124 /usr/local/sbin/relay-module.py -c CH1 -s on' %}
+{% set pre_os_command = 'ssh pi@192.168.11.124 /usr/local/sbin/relay-module.py -c CH1 -s off' %}
+{% set hard_reset_command = 'ssh pi@192.168.11.124 /usr/local/sbin/relay-module.py -c CH3 -s reboot' %}
+{% set power_on_command = 'ssh pi@192.168.11.124 /usr/local/sbin/relay-module.py -c CH3 -s on' %}
+{% set power_off_command = 'ssh pi@192.168.11.124 /usr/local/sbin/relay-module.py -c CH3 -s off' %}
+{% set soft_reset_command = 'fastboot -u -s 6F09C8960036550D' %}
+{% set adb_command = 'adb -s 6F09C8960036550D' %}
+{% set fastboot_command = 'fastboot -u -s 6F09C8960036550D' %}
+{% set device_info = [{'board_id': '6F09C8960036550D'}] %}
+{% set interrupt_prompt = 'Android Fastboot mode' %}
+{% set interrupt_string = "' '" %}

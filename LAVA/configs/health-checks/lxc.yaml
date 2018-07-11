@@ -19,8 +19,7 @@ protocols:
     template: debian
     distribution: debian
     release: stretch
-    mirror: http://ftp.uk.debian.org/debian/
-    security_mirror: http://mirror.csclub.uwaterloo.ca/debian-security/
+    mirror: http://cdn-fastly.deb.debian.org/debian
 
 actions:
 - deploy:
