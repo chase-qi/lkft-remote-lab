@@ -31,7 +31,7 @@
             default: 'remote-lab-demo'
         - string:
             name: DEVICE_TYPE
-            default: 'hi6220-hikey'
+            default: 'hi6220-hikey-r2'
     wrappers:
         - timestamps
         - credentials-binding:
@@ -45,7 +45,7 @@
             set -ex
             
             rm -rf lkft-remote-lab
-            git clone https://github.com/chase-qi/lkft-remote-lab
+            git clone https://github.com/Linaro/lkft-remote-lab
             cd ./lkft-remote-lab/demos/cylon-leds-demo
 
             virtualenv --python=/usr/bin/python2 env

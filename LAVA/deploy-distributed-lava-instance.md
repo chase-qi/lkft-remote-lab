@@ -213,7 +213,7 @@ In this guide, the following key:values will be used for lava-master, you will n
      ```
 4. Install prerequisites on lava-slave.
    ```
-   apt install simg2img
+   apt install simg2img img2simg
    ```
 5. Do not run adb daemon on the dispatcher host, which will grab the DUT and will hinder exposing it to LXC. If installed, remove adb and fastboot packages from the dispatcher host.
    ```

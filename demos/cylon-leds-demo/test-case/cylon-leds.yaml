@@ -10,7 +10,7 @@ metadata:
     scope:
         - functional
     devices:
-        - hi6220-hikey
+        - hi6220-hikey-r2
 
 parameters:
     # cylon leds special effects in seconds
