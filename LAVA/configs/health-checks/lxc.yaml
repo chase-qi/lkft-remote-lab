@@ -10,8 +10,8 @@ priority: medium
 visibility: public
 
 metadata:
-  source: https://git.linaro.org/lava-team/refactoring.git
-  path: lxc-debian-mirror.yaml
+  source: http://git.linaro.org/qa/test-definitions.git
+  path: automated/linux/smoke/smoke.yaml
 
 protocols:
   lava-lxc:
@@ -39,7 +39,7 @@ actions:
     timeout:
       minutes: 5
     definitions:
-    - repository: http://git.linaro.org/lava-team/lava-functional-tests.git
+    - repository: http://git.linaro.org/qa/test-definitions.git
       from: git
-      path: lava-test-shell/smoke-tests-basic.yaml
+      path: automated/linux/smoke/smoke.yaml
       name: smoke-tests

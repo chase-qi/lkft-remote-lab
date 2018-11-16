@@ -3,14 +3,14 @@ A LAVA instance consists of two primary components - a master and a worker. A di
 This document tries to give you a step by step guide to deploy a distributed LAVA instance.
 
 ## Common
-1. Install Debian9 on LAVA master and slave.
+1. Install Debian9 for LAVA master and slave.
 2. If not enabled already, follow the instructions [here](https://backports.debian.org/Instructions/) to enable the Stretch backports repo.
-3. Use Linaro [production-repo](https://images.validation.linaro.org/production-repo/) for latest production release.
+3. Add lavasoftware repo for latest production release.
    ```
    apt install -y apt-transport-https
-   wget https://images.validation.linaro.org/staging-repo/staging-repo.key.asc
-   apt-key add staging-repo.key.asc
-   echo "deb https://images.validation.linaro.org/production-repo stretch-backports main" > /etc/apt/sources.list.d/lava-production-repo.list
+   wget https://apt.lavasoftware.org/lavasoftware.key.asc
+   apt-key add lavasoftware.key.asc
+   echo "deb https://apt.lavasoftware.org/release stretch-backports main" > /etc/apt/sources.list.d/lavasoftware.list
    apt update
    ```
 
