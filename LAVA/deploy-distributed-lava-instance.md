@@ -249,7 +249,7 @@ In this guide, the following key:values will be used for lava-master, you will n
 ## Add known supported device: lxc
 1. The same as above, create lxc device type and device lxc-01.
 2. Set up lxcbr0 bridge network for LXC on lava-slave.
-   * Create /etc/default/lxc-net with the following line[deploy-distributed-lava-instance](./LAVA/deploy-distributed-lava-instance.md):
+   * Create /etc/default/lxc-net with the following line:
      ```
      USE_LXC_BRIDGE="true"
      ```
